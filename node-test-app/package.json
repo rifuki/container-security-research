@@ -1,0 +1,22 @@
+{
+  "name": "node-test-app",
+  "version": "1.0.0",
+  "description": "Simple Node.js application for testing Docker container namespace and cgroup isolation",
+  "main": "app.js",
+  "type": "module",
+  "scripts": {
+    "start": "node app.js",
+    "docker:build": "docker build -t node-test-app:v1.0 .",
+    "docker:run:baseline": "",
+    "docker:run:hardened": ""
+  },
+  "author": "Rifuki",
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "express": "^4.21.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rifuki/container-security-research"
+  }
+}
