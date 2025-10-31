@@ -4,9 +4,11 @@
  */
 
 import fs from "fs";
+import path from "path";
 
 /**
- * Get cgroup information for current process
+ * Get cgroup v2 information for current process
+ * Kernel 5.10+
  */
 export function getCgroupInfo() {
   try {
@@ -25,50 +27,41 @@ export function getCgroupInfo() {
       .filter((line) => line.trim())
       .map((line) => {
         const [id, controllers, path] = line.split(":");
+        console.log({ id, controllers, path });
         return { id, controllers, path };
       });
 
-    // Try to read resource limits
-    const limits = {};
-
+    const basePath = "/sys/fs/cgroup";
     // CPU limit (cgroup v2)
-    try {
-      if (fs.existsSync("/sys/fs/cgroup/cpu.max")) {
-        limits.cpu = fs.readFileSync("/sys/fs/cgroup/cpu.max", "utf8").trim();
-      }
-    } catch (error) {
-      /* ignore */
-    }
-
+    const cpuMax = readFileSafe(path.join(basePath, "cpu.max"));
     // Memory limit (cgroup v2)
-    try {
-      if (fs.existsSync("/sys/fs/cgroup/memory.max")) {
-        limits.memory = fs
-          .readFileSync("/sys/fs/cgroup/memory.max", "utf8")
-          .trim();
-      }
-    } catch (error) {
-      /* ignore */
-    }
-
+    const memoryMax = readFileSafe(path.join(basePath, "memory.max"));
     // PIDs limit (cgroup v2)
-    try {
-      if (fs.existsSync("/sys/fs/cgroup/pids.max")) {
-        limits.pids = fs.readFileSync("/sys/fs/cgroup/pids.max", "utf8").trim();
-      }
-    } catch (error) {
-      /* ignore */
-    }
+    const pidsMax = readFileSafe(path.join(basePath, "pids.max"));
 
     return {
       available: true,
       cgroups,
-      limits,
+      limits: {
+        cpuMax,
+        memoryMax,
+        pidsMax,
+      },
     };
   } catch (error) {
     return {
       available: false,
-      error: err.message,
+      error: `Error reading cgroup info: ${error.message}`,
     };
+  }
+}
+
+// Helper to read file safely
+function readFileSafe(filePath) {
+  try {
+    if (!fs.existsSync(filePath)) return null;
+    return fs.readFileSync(filePath, "utf8").trim();
+  } catch (error) {
+    return null;
   }
 }

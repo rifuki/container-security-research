@@ -29,7 +29,10 @@ COPY package*.json ./
 RUN npm ci --only=production
 
 # Copy source code aplikasi ke dalam container
-COPY app.js ./
+COPY . .
+
+# Expose port aplikasi (misalnya, 3000)
+EXPOSE 3000
 
 # Command untuk menjalankan aplikasi saat container start
 CMD ["node", "--expose-gc", "app.js"]
