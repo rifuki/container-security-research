@@ -1,0 +1,33 @@
+@startuml Sequence_CIS_Validation
+!theme plain
+title Sequence Diagram - Validasi Kepatuhan CIS Benchmark (UC8)
+
+actor "Admin/DevOps" as Admin
+participant "docker-bench-\nsecurity" as DBS
+participant "Docker Daemon" as Daemon
+participant Container
+participant "CIS Benchmark\nv1.6.0" as CIS
+
+Admin -> DBS: Jalankan audit
+
+== UC6: Audit ==
+DBS -> Daemon: Query konfigurasi
+Daemon --> DBS: daemon.json
+DBS -> Container: Inspeksi
+Container --> DBS: Detail
+
+DBS -> DBS: Validasi namespace\n(8/8, UID 0→100000)
+DBS -> DBS: Validasi limits\n(CPU 2c, RAM 2GB, Swap off, PIDs 512, I/O 10MB/s)
+DBS -> DBS: Validasi security options\n(1 cap, no-new-priv, RO)
+
+DBS -> CIS: Bandingkan dengan standar
+CIS --> DBS: Kriteria
+DBS -> DBS: Hitung skor\n(PASS/WARN+PASS)×100%
+
+alt Score ≥80%
+  DBS --> Admin: COMPLIANT\nScore: 85%\nSiap untuk Production
+else Score <80%
+  DBS --> Admin: NON-COMPLIANT\nScore: 65%\nPerlu penyesuaian
+end
+
+@enduml

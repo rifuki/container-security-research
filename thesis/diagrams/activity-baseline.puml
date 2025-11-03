@@ -1,0 +1,28 @@
+@startuml Activity_Baseline
+title Activity Diagram - Baseline Configuration
+
+|User/Admin|
+start
+:Permintaan Deploy Container;
+:docker run node-test-app;
+
+|Docker Engine|
+:Pull image;
+:Validasi integritas;
+
+if (Valid?) then (ya)
+  :Buat container default;
+  |Linux Kernel|
+  :Aktivasi 8 namespace\n(tanpa UID remapping);
+  :Tanpa batasan resource;
+  :Keamanan default\n(root, 14 caps);
+  :Mulai container;
+  |User/Admin|
+  :Aplikasi berjalan;
+  stop
+else (tidak)
+  :Error: Image tidak valid;
+  stop
+endif
+
+@enduml

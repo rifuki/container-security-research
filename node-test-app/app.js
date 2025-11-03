@@ -8,7 +8,6 @@ import express from "express";
 import os from "os";
 import { APP_PORT } from "./config/constants.js";
 import { requestLogger } from "./middleware/logger.js";
-import { incrementErrors, metricsCollector } from "./middleware/metrics.js";
 import { securityConfig } from "./config/security.js";
 import routes from "./routes/index.js";
 
@@ -22,7 +21,6 @@ const app = express();
 // ============================================
 app.use(express.json());
 app.use(requestLogger);
-app.use(metricsCollector);
 
 // ============================================
 // ROUTES
@@ -48,7 +46,6 @@ app.use((req, res) => {
       "GET /info/cgroup",
       "GET /stress/cpu?iterations=N",
       "GET /stress/memory?size=N",
-      "GET /metrics",
     ],
   });
 });
@@ -57,7 +54,6 @@ app.use((req, res) => {
  * Error handler
  */
 app.use((err, _req, res, _next) => {
-  incrementErrors();
   console.error(`[ERROR] ${err.message}`);
 
   res.status(500).json({
@@ -126,6 +122,5 @@ const server = app.listen(APP_PORT, "0.0.0.0", () => {
   console.log("  GET  /info/cgroup      - Cgroup limits");
   console.log("  GET  /stress/cpu       - CPU stress test");
   console.log("  GET  /stress/memory    - Memory stress test");
-  console.log("  GET  /metrics          - Prometheus metrics");
   console.log("-".repeat(60));
 });

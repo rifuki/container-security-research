@@ -7,7 +7,6 @@ import express from "express";
 import os from "os";
 import healthRoutes from "./health.js";
 import infoRoutes from "./info.js";
-import metricsRoutes from "./metrics.js";
 import stressRoutes from "./stress.js";
 
 const router = express.Router();
@@ -15,7 +14,6 @@ const router = express.Router();
 // Mount route modules
 router.use("/health", healthRoutes);
 router.use("/info", infoRoutes);
-router.use("/metrics", metricsRoutes);
 router.use("/stress", stressRoutes);
 
 /**
@@ -35,7 +33,6 @@ router.get("/", (_req, res) => {
       cgroup: "GET /info/cgroup - Cgroup limits and configuration",
       cpu_stress: "GET /stress/cpu?iterations=N - CPU stress test",
       memory_stress: "GET /stress/memory?size=N - Memory stress test (MB)",
-      metrics: "GET /metrics - Prometheus-style metrics",
     },
     hostname: os.hostname(),
     timestamp: new Date().toISOString(),

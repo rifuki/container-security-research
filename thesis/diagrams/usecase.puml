@@ -1,0 +1,88 @@
+@startuml UseCase_Penelitian_Komparasi
+!theme plain
+left to right direction
+
+title Diagram Use Case - Penelitian Komparasi Keamanan Container Docker
+
+actor "Admin/DevOps\nEngineer" as Admin
+
+rectangle "Penelitian Komparasi Keamanan Container Docker" {
+  usecase (UC1:\nDeploy Container\nBaseline) as UC1 #LightPink
+  usecase (UC2:\nDeploy Container\nHardened) as UC2 #LightGreen
+  usecase (UC3:\nKonfigurasi Isolasi\nNamespace) as UC3 #LightGreen
+  usecase (UC4:\nKonfigurasi Batasan\nCgroup) as UC4 #LightGreen  
+  usecase (UC5:\nTerapkan Konfigurasi\nKeamanan) as UC5 #LightGreen
+  usecase (UC6:\nUji Enforcement\nCgroup) as UC6 #LightBlue
+  usecase (UC7:\nUji Performa\nContainer) as UC7 #LightBlue
+  usecase (UC8:\nAudit Kepatuhan\nCIS Benchmark) as UC8 #LightYellow
+  usecase (UC9:\nPantau Resource\nContainer) as UC9 #LightCyan
+  usecase (UC10:\nGenerate Laporan\nKomparatif) as UC10 #Lavender
+}
+
+Admin --> UC1
+Admin --> UC2
+Admin --> UC6
+Admin --> UC7
+Admin --> UC8
+Admin --> UC9
+Admin --> UC10
+
+UC2 ..> UC3 : <<include>>
+UC2 ..> UC4 : <<include>>
+UC2 ..> UC5 : <<include>>
+
+UC6 ..> UC9 : <<uses>>
+UC7 ..> UC9 : <<uses>>
+
+note right of UC3
+  - 8 namespace aktif
+  - UID remap 0→100000
+  - User namespace remapping
+end note
+
+note right of UC4
+  - CPU: 2.0 cores
+  - Memory: 2GB
+  - Swap: disabled
+  - PIDs: 512
+  - I/O: 10 MB/s
+end note
+
+note right of UC5
+  - Capabilities: 14 → 1
+  - Non-root user (UID 1000)
+  - no-new-privileges flag
+  - Read-only root filesystem
+  - Secure tmpfs /tmp
+end note
+
+note right of UC6
+  - CPU stress (stress-ng)
+  - Memory stress (stress-ng)
+  - PIDs stress (stress-ng)
+  - I/O throughput (stress-ng)
+end note
+
+note right of UC7
+  - HTTP benchmark (ab)
+  - CPU/Memory (sysbench)
+  - Startup time
+end note
+
+note right of UC8
+  Validasi menggunakan
+  CIS Benchmark v1.6.0
+  Target: ≥80%
+end note
+
+legend right
+  |= Warna |= Keterangan |
+  | <#LightPink>    | Baseline Configuration |
+  | <#LightGreen>   | Hardened Configuration |
+  | <#LightBlue>    | Testing & Validation |
+  | <#LightYellow>  | CIS Compliance Audit |
+  | <#LightCyan>    | Monitoring |
+  | <#Lavender>     | Reporting |
+endlegend
+
+@enduml

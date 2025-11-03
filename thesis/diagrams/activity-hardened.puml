@@ -1,0 +1,35 @@
+@startuml Activity_Hardened
+title Activity Diagram - Hardened Configuration
+
+|User/Admin|
+start
+:Permintaan Deploy Container;
+:docker run node-test-app\n(dengan security flags);
+
+|Docker Engine|
+:Pull image;
+:Validasi integritas;
+
+if (Valid?) then (ya)
+  :Buat container hardened;
+  |Linux Kernel|
+  :Aktivasi 8 namespace\n(dengan UID remapping 0→100000);
+  :Resource limits di-enforce\n(CPU 2c, RAM 2GB, Swap off, PIDs 512, I/O 10MB/s);
+  :Security options di-enforce\n(non-root, 1 cap, read-only);
+  :Mulai container terproteksi;
+  |User/Admin|
+  :Aplikasi berjalan;
+  :Audit CIS Benchmark;
+  if (Score ≥80%?) then (ya)
+    :Container compliant;
+    stop
+  else (tidak)
+    :Sesuaikan konfigurasi;
+    detach
+  endif
+else (tidak)
+  :Error: Image tidak valid;
+  stop
+endif
+
+@enduml

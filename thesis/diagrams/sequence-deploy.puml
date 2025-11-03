@@ -1,0 +1,37 @@
+@startuml Sequence_Deploy_Hardened
+!theme plain
+title Sequence Diagram - Jalankan Container yang Diperkuat (UC2)
+
+actor "Admin/DevOps" as Admin
+participant "Docker CLI" as CLI
+participant "Docker Daemon" as Daemon
+participant containerd
+participant "Linux Kernel" as Kernel
+participant Container
+
+Admin -> CLI: docker run node-test-app\n(dengan security flags)
+CLI -> Daemon: Kirim request
+Daemon -> containerd: Buat dengan hardening
+
+== UC3: Konfigurasi Namespace ==
+containerd -> Kernel: Konfigurasi 8 namespace
+Kernel -> Kernel: UID remap (0→100000)
+Kernel --> containerd: Namespace siap
+
+== UC4: Konfigurasi Cgroup ==
+containerd -> Kernel: Terapkan cgroup limits\n(CPU 2c, RAM 2GB, Swap disabled, PIDs 512, I/O 10MB/s)
+Kernel -> Kernel: Enforce limits
+Kernel --> containerd: Cgroup terkonfigurasi
+
+== UC5: Konfigurasi Security Options ==
+containerd -> Kernel: Terapkan security options\n(caps drop, non-root, read-only)
+Kernel -> Kernel: Enforce kebijakan
+Kernel --> containerd: Keamanan diterapkan
+
+containerd -> Container: Mulai container terproteksi
+Container --> containerd: Berjalan
+containerd --> Daemon: Berhasil dibuat (abc123)
+Daemon --> CLI: Berhasil
+CLI --> Admin: Container terproteksi
+
+@enduml

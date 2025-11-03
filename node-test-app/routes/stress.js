@@ -6,7 +6,6 @@
 import express from "express";
 import { sanitizeNumber } from "../utils/sanitizeNumber.js";
 import { securityConfig } from "../config/security.js";
-import { incrementErrors } from "../middleware/metrics.js";
 
 const router = express.Router();
 
@@ -48,7 +47,6 @@ router.get("/cpu", (req, res) => {
       message: `CPU stress test completed in ${duration_ms}ms`,
     });
   } catch (error) {
-    incrementErrors();
     console.error(`[CPU Stress] Failed: ${error.message}`);
 
     res.status(500).json({
@@ -111,7 +109,6 @@ router.get("/memory", (req, res) => {
       }
     });
   } catch (error) {
-    incrementErrors();
     console.error(`[Memory Stress] Failed: ${error.message}`);
 
     res.status(500).json({
